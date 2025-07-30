@@ -1,0 +1,421 @@
+/* General Body and HTML Styling */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #faf8ef;
+  color: #776e65;
+  font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+body {
+  font-weight: 300;
+  display: flex;
+  justify-content: flex-start; /* Changed to flex-start to ensure content starts from the top */
+  align-items: center;   /* Center content horizontally */
+  flex-direction: column;
+  min-height: 100vh; /* Ensure body takes full viewport height */
+  padding: 0; /* Remove body padding, let game-wrapper handle it */
+  box-sizing: border-box;
+}
+
+/* Game Wrapper (Overall container for header + game + explanation) */
+.game-wrapper {
+  display: flex;
+  flex-direction: column; /* Stack header, game, and explanation vertically */
+  align-items: center;   /* Center children horizontally */
+  width: 95%; /* Fluid width, takes 95% of parent (body) width */
+  max-width: 600px; /* Constrain max width for desktop screens */
+  box-sizing: border-box;
+  margin: auto; /* Center horizontally within the body */
+  padding: 40px 10px 20px 10px; /* Increased top padding, added bottom padding */
+}
+
+/* Header Section (Contains Title and Scores) */
+.header-section {
+  display: flex;
+  flex-direction: column; /* Stack title elements and scores container vertically */
+  align-items: center;   /* Center children horizontally within the header */
+  width: 100%; /* Take full width of its parent (.game-wrapper) */
+  margin-bottom: 20px; /* Space between header and game board */
+  margin-top: 0; /* Reset margin-top, rely on game-wrapper padding-top */
+}
+
+/* Title Styling (for "2048:") */
+.title {
+  /* Responsive font size: min 40px, max 80px, scales with 10vw */
+  font-size: clamp(40px, 10vw, 80px);
+  font-weight: bold;
+  margin: 0; /* Remove default margins */
+  display: block;
+  line-height: 1.2; /* Adjusted line height for better spacing */
+  color: #776e65;
+  text-align: center; /* Ensure text is centered */
+  padding: 0; /* Remove padding from title itself */
+}
+
+/* Subtitle Styling (for "Chad & Irene") */
+.subtitle {
+  /* Responsive font size, slightly smaller than main title */
+  font-size: clamp(30px, 8vw, 60px);
+  font-weight: bold;
+  margin: 0; /* Remove default margins */
+  display: block;
+  line-height: 1.2; /* Adjusted line height */
+  color: #776e65;
+  text-align: center; /* Ensure text is centered */
+  margin-bottom: 15px; /* Space between subtitle and score container */
+  padding: 0;
+}
+
+
+/* Scores Container */
+.scores-container {
+  display: flex;
+  flex-wrap: wrap; /* Allow score boxes to wrap on smaller screens */
+  justify-content: center; /* Center the score boxes within the score container */
+  gap: 10px; /* Space between score boxes */
+  width: 100%; /* Ensure it takes full width for centering */
+}
+
+.score-container,
+.best-container {
+  position: relative; /* Crucial for absolute positioning of score-addition */
+  display: flex; /* Make it a flex container */
+  flex-direction: column; /* Stack content vertically */
+  justify-content: center; /* Center items vertically */
+  align-items: center; /* Center items horizontally */
+  background: #bbada0;
+  border-radius: 3px;
+  color: white;
+  text-align: center; /* For the number text */
+  min-width: 80px;
+  height: 60px; /* Fixed height for consistency */
+  box-sizing: border-box;
+  padding: 5px 10px; /* Padding inside the box */
+  font-size: clamp(18px, 4vw, 25px); /* This applies to the number */
+  font-weight: bold;
+}
+
+.score-container:before,
+.best-container:before {
+  content: "Score"; /* Default content */
+  /* No position absolute here, it's a flex item */
+  font-size: clamp(10px, 2.5vw, 13px);
+  font-weight: 300;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 2px; /* Small gap between label and number */
+}
+
+.best-container:before { content: "Best"; }
+
+/* Score Addition Animation */
+.score-addition {
+  position: absolute;
+  top: 50%; /* Start from the middle of the score box */
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center it precisely */
+  color: rgba(119, 110, 101, 0.9); /* A visible color for the addition */
+  font-weight: bold;
+  font-size: clamp(18px, 4vw, 25px);
+  z-index: 201; /* Ensure it's above the score box */
+  animation: score-pop-up 0.7s ease-out forwards; /* Animation properties */
+}
+
+@keyframes score-pop-up {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -150%) scale(0.8); /* Float up and shrink */
+  }
+}
+
+
+/* Game Container (The actual game board) */
+.game-container {
+  position: relative;
+  background: #bbada0;
+  border-radius: 6px;
+  width: 100%; /* Take full width of its parent (.game-wrapper) */
+  aspect-ratio: 1 / 1; /* Crucial: maintains a perfect square aspect ratio */
+  overflow: hidden; /* Ensure content stays within bounds */
+  padding: 0; /* Removed padding from game-container */
+  box-sizing: border-box; /* Include padding in the width/height calculation */
+}
+
+/* Define CSS variables for consistent calculations */
+:root {
+  --grid-padding: 8px; /* Padding around the entire grid of cells */
+  --grid-gap: 8px; /* Gap between grid cells */
+  /* Calculate tile size: (100% of container - 2*padding - 3*gaps) / 4 tiles */
+  --tile-size: calc((100% - (2 * var(--grid-padding)) - (3 * var(--grid-gap))) / 4);
+  /* Unit for positioning: tile size + one gap */
+  --tile-position-unit: calc(var(--tile-size) + var(--grid-gap));
+}
+
+/* Grid Container - for the background cells */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 equal columns */
+  grid-template-rows: repeat(4, 1fr);    /* 4 equal rows */
+  gap: var(--grid-gap); /* Use variable for gap */
+  width: 100%;
+  height: 100%;
+  padding: var(--grid-padding); /* Use variable for padding around the grid */
+  box-sizing: border-box; /* Ensure padding is included in width/height */
+}
+
+/* Grid Cell Styling */
+.grid-cell {
+  background: rgba(238, 228, 218, 0.35); /* Lighter background for empty cells */
+  border-radius: 3px;
+}
+
+/* Tile Container - for the actual game tiles that move */
+.tile-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: var(--grid-padding); /* Matched padding to grid-container */
+  box-sizing: border-box;
+  z-index: 100; /* Ensure tiles appear above the grid cells */
+}
+
+/* Tile Styling */
+.tile {
+  position: absolute;
+  width: var(--tile-size); /* Use variable for tile width */
+  height: var(--tile-size); /* Use variable for tile height */
+  border-radius: 3px;
+  /* Default background if no specific tile class matches */
+  background: #eee4da;
+  background-size: cover; /* Ensure image covers the tile */
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Prevent image repetition */
+
+  display: flex; /* Use flexbox to center content */
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  /* Default text color, overridden by specific tile classes or hidden for images */
+  color: #776e65;
+  /* Smooth transitions for movement and color changes */
+  transition: transform 0.1s ease-in-out, background-color 0.1s ease-in-out;
+  box-sizing: border-box;
+}
+
+/* Tile inner content - no longer needed for background image, but kept for text centering */
+.tile-inner {
+  display: flex; /* Use flexbox for centering text */
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
+}
+
+.tile-text {
+  /* Responsive font size for tile numbers: min 25px, max 60px, scales with 8vw */
+  font-size: clamp(25px, 8vw, 60px);
+  line-height: 1; /* Ensure single line */
+  text-align: center;
+  white-space: nowrap; /* Prevent text wrapping */
+  /* Text color for tile numbers */
+  color: #776e65; /* Default text color */
+}
+
+/* Tile specific images and text colors */
+/* IMPORTANT: Paths changed to use '../Images/' because main.css is in a 'css' subfolder */
+.tile-2 { background-image: url('../Images/tile-2.jpg'); }
+.tile-4 { background-image: url('../Images/tile-4.jpg'); }
+.tile-8 { background-image: url('../Images/tile-8.jpg'); }
+.tile-16 { background-image: url('../Images/tile-16.jpg'); }
+.tile-32 { background-image: url('../Images/tile-32.jpg'); }
+.tile-64 { background-image: url('../Images/tile-64.jpg'); }
+.tile-128 { background-image: url('../Images/tile-128.jpg'); }
+.tile-256 { background-image: url('../Images/tile-256.jpg'); }
+.tile-512 { background-image: url('../Images/tile-512.jpg'); }
+.tile-1024 { background-image: url('../Images/tile-1024.jpg'); }
+.tile-2048 { background-image: url('../Images/tile-2048.jpg'); }
+
+/* Hide tile text when images are present, and set text color for tiles that need it */
+.tile-2 .tile-text,
+.tile-4 .tile-text,
+.tile-8 .tile-text,
+.tile-16 .tile-text,
+.tile-32 .tile-text,
+.tile-64 .tile-text,
+.tile-128 .tile-text,
+.tile-256 .tile-text,
+.tile-512 .tile-text,
+.tile-1024 .tile-text,
+.tile-2048 .tile-text {
+  color: transparent; /* Make text transparent to show background image */
+}
+
+/* Positioning for tiles (essential for them to appear on the grid) */
+/* These calculate left/top based on the tile-container's padding,
+   and the cumulative size of previous tiles and gaps. */
+
+/* Column 1 (x=1) */
+.tile-position-1-1 { left: var(--grid-padding); top: var(--grid-padding); }
+.tile-position-1-2 { left: var(--grid-padding); top: calc(var(--grid-padding) + 1 * var(--tile-position-unit)); }
+.tile-position-1-3 { left: var(--grid-padding); top: calc(var(--grid-padding) + 2 * var(--tile-position-unit)); }
+.tile-position-1-4 { left: var(--grid-padding); top: calc(var(--grid-padding) + 3 * var(--tile-position-unit)); }
+
+/* Column 2 (x=2) */
+.tile-position-2-1 { left: calc(var(--grid-padding) + 1 * var(--tile-position-unit)); top: var(--grid-padding); }
+.tile-position-2-2 { left: calc(var(--grid-padding) + 1 * var(--tile-position-unit)); top: calc(var(--grid-padding) + 1 * var(--tile-position-unit)); }
+.tile-position-2-3 { left: calc(var(--grid-padding) + 1 * var(--tile-position-unit)); top: calc(var(--grid-padding) + 2 * var(--tile-position-unit)); }
+.tile-position-2-4 { left: calc(var(--grid-padding) + 1 * var(--tile-position-unit)); top: calc(var(--grid-padding) + 3 * var(--tile-position-unit)); }
+
+/* Column 3 (x=3) */
+.tile-position-3-1 { left: calc(var(--grid-padding) + 2 * var(--tile-position-unit)); top: var(--grid-padding); }
+.tile-position-3-2 { left: calc(var(--grid-padding) + 2 * var(--tile-position-unit)); top: calc(var(--grid-padding) + 1 * var(--tile-position-unit)); }
+.tile-position-3-3 { left: calc(var(--grid-padding) + 2 * var(--tile-position-unit)); top: calc(var(--grid-padding) + 2 * var(--tile-position-unit)); }
+.tile-position-3-4 { left: calc(var(--grid-padding) + 2 * var(--tile-position-unit)); top: calc(var(--grid-padding) + 3 * var(--tile-position-unit)); }
+
+/* Column 4 (x=4) */
+.tile-position-4-1 { left: calc(var(--grid-padding) + 3 * var(--tile-position-unit)); top: var(--grid-padding); }
+.tile-position-4-2 { left: calc(var(--grid-padding) + 3 * var(--tile-position-unit)); top: calc(var(--grid-padding) + 1 * var(--tile-position-unit)); }
+.tile-position-4-3 { left: calc(var(--grid-padding) + 3 * var(--tile-position-unit)); top: calc(var(--grid-padding) + 2 * var(--tile-position-unit)); }
+.tile-position-4-4 { left: calc(var(--grid-padding) + 3 * var(--tile-position-unit)); top: calc(var(--grid-padding) + 3 * var(--tile-position-unit)); }
+
+
+/* Game Message (You Win/Game Over) */
+.game-message {
+  display: none !important; /* Force hide by default */
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(238, 228, 218, 0.5); /* Semi-transparent overlay */
+  color: #776e65;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 6px;
+  z-index: 200; /* Ensure it's on top */
+  display: flex; /* Use flexbox to center content */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* Responsive font size for message: min 25px, max 60px, scales with 8vw */
+  font-size: clamp(25px, 8vw, 60px);
+}
+
+.game-message p {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.game-message .lower {
+  display: flex;
+  flex-direction: column; /* Stack buttons vertically on small screens */
+  gap: 10px;
+  align-items: center;
+}
+
+.game-message a {
+  display: inline-block;
+  background: #8f7a66;
+  border-radius: 3px;
+  padding: 10px 20px;
+  text-decoration: none;
+  color: #f9f6f2;
+  /* Responsive font size for buttons: min 14px, max 18px, scales with 3.5vw */
+  font-size: clamp(14px, 3.5vw, 18px);
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.game-message a:hover {
+  background: #9f8b77;
+}
+
+/* Show message when active */
+.game-message.game-won,
+.game-message.game-over {
+  display: flex !important; /* Force show when active */
+}
+
+/* Explanation */
+.game-explanation {
+  margin-top: 20px;
+  /* Responsive font size: min 14px, max 18px, scales with 3.5vw */
+  font-size: clamp(14px, 3.5vw, 18px);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* Media Queries for fine-tuning on smaller screens */
+@media (max-width: 480px) {
+  body {
+    padding: 10px; /* Reduce overall padding on smaller screens */
+  }
+  .game-wrapper {
+    padding: 25px 10px 15px 10px; /* Adjusted padding for smaller screens */
+  }
+  .header-section {
+    flex-direction: column; /* Stack title and scores vertically */
+    align-items: center; /* Align header items to the center */
+    gap: 5px; /* Smaller gap between title elements and scores */
+  }
+  .scores-container {
+    justify-content: center; /* Align scores to the center */
+    width: 100%; /* Take full width */
+  }
+  .score-container,
+  .best-container {
+    padding: 10px 15px; /* Smaller padding for score boxes */
+    font-size: clamp(16px, 4vw, 20px);
+    min-width: 60px;
+  }
+  .best-container:before { /* Changed from :after to :before */
+    top: 5px; /* Adjust text position */
+    font-size: clamp(8px, 2vw, 10px);
+  }
+  .game-container {
+    padding: 5px; /* Smaller padding inside game container */
+  }
+  .grid-container {
+    gap: 5px; /* Smaller gap between grid cells */
+  }
+  .tile {
+    width: calc(25% - 5px); /* Adjust tile width based on new gap */
+    height: calc(25% - 5px); /* Adjust tile height based on new gap */
+  }
+  .tile-text {
+    font-size: clamp(20px, 6vw, 40px); /* Adjust tile font size */
+  }
+  .tile-128 .tile-text,
+  .tile-256 .tile-text,
+  .tile-512 .tile-text {
+    font-size: clamp(15px, 4vw, 30px);
+  }
+  .tile-1024 .tile-text,
+  .tile-2048 .tile-text {
+    font-size: clamp(12px, 3vw, 25px);
+  }
+}
+
+/* Additional media query for very small screens (e.g., iPhone 5/SE) */
+@media (max-width: 320px) {
+  .title {
+    font-size: clamp(30px, 8vw, 50px); /* Further reduce title font size */
+  }
+  .subtitle {
+    font-size: clamp(20px, 6vw, 40px); /* Further reduce subtitle font size */
+  }
+  .game-explanation {
+    font-size: clamp(12px, 3vw, 16px); /* Further reduce explanation font size */
+  }
+}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>2048: Chad & Irene</title>
+  <link href="css/main.css" rel="stylesheet" type="text/css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <script src="js/jquery.min.js"></script>
+  <script src="js/glom.js"></script>
+</head>
+<body>
+  <div class="game-wrapper">
+    <div class="header-section">
+      <h1 class="title">2048:</h1>
+      <h2 class="subtitle">Chad & Irene</h2>
+      <div class="scores-container">
+        <div class="score-container">0</div>
+        <div class="best-container">0</div>
+      </div>
+    </div>
+
+    <div class="game-container">
+      <div class="game-message">
+        <p></p>
+        <div class="lower">
+          <a class="tweet">Tweet your score</a>
+          <a class="facebook">Share on Facebook</a>
+          <a class="retry-button">Try again</a>
+        
+        </div>
+      </div>
+
+      <div class="grid-container">
+        <div class="grid-row">
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+        </div>
+        <div class="grid-row">
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+        </div>
+        <div class="grid-row">
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+        </div>
+        <div class="grid-row">
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+        </div>
+      </div>
+
+      <div class="tile-container">
+        <div class="tile tile-2 tile-position-1-4"><div class="tile-inner"><div class="tile-text">2</div></div></div>
+        <div class="tile tile-4 tile-position-3-2"><div class="tile-inner"><div class="tile-text">4</div></div></div>
+      </div>
+    </div>
+
+    <p class="game-explanation">
+      <strong class="important">How to play:</strong> Use your <strong>arrow keys</strong> to move the tiles.<br>When two identical tiles touch, they merge and become the next level of tile. Get a tile to the eleventh level to win.
+    </p>
+  </div>
+
+  <script>
+    // Example dummy functions to prevent errors if original JS is missing
+    function tweet() { console.log('Tweet functionality not implemented.'); }
+    function facebook() { console.log('Facebook functionality not implemented.'); }
+    var external_score = 0; // Dummy variable
+  </script>
+</body>
+</html>
